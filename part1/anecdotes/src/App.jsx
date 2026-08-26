@@ -8,6 +8,15 @@ const Button = ({ text, onClick }) => {
   )
 }
 
+const AnecdoteDisplay = ({ anecdote, votes }) => {
+  return (
+    <div>
+      {anecdote}
+      <p>has {votes} votes</p>
+    </div>
+  )
+}
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -22,6 +31,9 @@ const App = () => {
 
   const [selected, setSelected] = useState(0)
   const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
+
+  const maxVotes = Math.max(...votes);
+  const indexMaxVotes = votes.indexOf(maxVotes);
 
   // extracted from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
   function getRandomInt(max) {
@@ -41,11 +53,15 @@ const App = () => {
 
   return (
     <div>
-      {anecdotes[selected]}
-      <p>has {votes[selected]} votes</p>
+      <h1> Anecdote of the day </h1>
+      <AnecdoteDisplay anecdote={anecdotes[selected]} votes={votes[selected]} />
 
       <Button text="vote" onClick={voteSelectedAnecdote}/>
-      <Button text="next anecdote" onClick={randomAnecdote}/>
+      <Button text="next anecdote" onClick={randomAnecdote} />
+
+      <h1> Anecdote with most votes</h1>
+      <AnecdoteDisplay anecdote={anecdotes[indexMaxVotes]} votes={votes[indexMaxVotes]} />
+
     </div>
   )
 }
