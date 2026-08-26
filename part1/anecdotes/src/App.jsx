@@ -2,11 +2,9 @@ import { useState } from 'react'
 
 const Button = ({ text, onClick }) => {
   return (
-    <div>
       <button onClick={onClick}>
         {text}
       </button>
-    </div>
   )
 }
 
@@ -23,6 +21,7 @@ const App = () => {
   ]
 
   const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
 
   // extracted from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
   function getRandomInt(max) {
@@ -34,10 +33,18 @@ const App = () => {
     setSelected(next_index)
   }
 
+  const voteSelectedAnecdote = () => {
+    const copyVotes = [...votes]
+    copyVotes[selected]++
+    setVotes(copyVotes)
+  }
+
   return (
     <div>
       {anecdotes[selected]}
+      <p>has {votes[selected]} votes</p>
 
+      <Button text="vote" onClick={voteSelectedAnecdote}/>
       <Button text="next anecdote" onClick={randomAnecdote}/>
     </div>
   )
