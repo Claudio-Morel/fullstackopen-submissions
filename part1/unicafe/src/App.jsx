@@ -15,10 +15,10 @@ const StatisticsLine = ({ text, value }) => {
 const Statistics = ({ good, neutral, bad }) => {
   if (good + neutral + bad == 0) return <p>No feedback given</p>
 
-  var total = good + neutral + bad
-  var score = good - bad
-  var average = score / total
-  var positivePercentage = good / total * 100
+  let total = good + neutral + bad
+  let score = good - bad
+  let average = score / total
+  let positivePercentage = good / total * 100
 
   return <div>
     <table>
