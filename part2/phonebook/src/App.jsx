@@ -1,22 +1,27 @@
 import { useState } from 'react'
 
 const Register = ({ entry }) => {
-  return <p>{entry.name}</p>
+  return <p>{entry.name} {entry.number}</p>
 }
 
 const Phonebook = ({ entries }) => {
   return (
     <div>
-      {entries.map(entry => <Register key={entry.name} entry={entry} /> )}
+      {entries.map(entry => <Register key={entry.id} entry={entry} /> )}
     </div>
   )
 }
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
   const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [newId, setNewId] = useState(5)
 
   const alreadyExists = (name, existentNames) => {
     for (let i = 0; i < existentNames.length; i++) {
@@ -32,6 +37,11 @@ const App = () => {
     setNewName(event.target.value)
   }
 
+  const handleNumberChange = (event) => {
+    console.log(event.target.value)
+    setNewNumber(event.target.value)
+  }
+
   const addRegister = (event) => {
     event.preventDefault()
 
@@ -42,18 +52,24 @@ const App = () => {
     }
 
     const newPerson = {
-      name : newName
+      name: newName,
+      number: newNumber,
+      id: newId
     }
     setPersons(persons.concat(newPerson))
+    setNewId(newId + 1)
     setNewName("")
+    setNewNumber("")
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      
       <form onSubmit={addRegister}>
         <div>
-          name: <input value={newName} onChange={handleNameChange}/>
+          name: <input value={newName} onChange={handleNameChange} />
+          phone: <input value={newNumber} onChange={handleNumberChange}></input>
         </div>
         <div>
           <button type="submit">add</button>
