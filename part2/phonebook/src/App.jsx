@@ -4,10 +4,14 @@ const Register = ({ entry }) => {
   return <p>{entry.name} {entry.number}</p>
 }
 
-const Phonebook = ({ entries }) => {
+const Phonebook = ({ entries, filter }) => {
+  const filteredEntries = entries.filter(entry =>
+    entry.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
   return (
     <div>
-      {entries.map(entry => <Register key={entry.id} entry={entry} /> )}
+      {filteredEntries.map(entry => <Register key={entry.id} entry={entry} /> )}
     </div>
   )
 }
@@ -22,6 +26,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newId, setNewId] = useState(5)
+  const [filterString, setFilterString] = useState('')
 
   const alreadyExists = (name, existentNames) => {
     for (let i = 0; i < existentNames.length; i++) {
@@ -33,13 +38,15 @@ const App = () => {
   }
 
   const handleNameChange = (event) => {
-    console.log(event.target.value)
     setNewName(event.target.value)
   }
 
   const handleNumberChange = (event) => {
-    console.log(event.target.value)
     setNewNumber(event.target.value)
+  }
+
+  const handleFilterChange = (event) => {
+    setFilterString(event.target.value)
   }
 
   const addRegister = (event) => {
@@ -65,18 +72,20 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      
+      <div>
+          filter shpoown with<input value={filterString} onChange={handleFilterChange}></input>
+      </div>
       <form onSubmit={addRegister}>
         <div>
           name: <input value={newName} onChange={handleNameChange} />
-          phone: <input value={newNumber} onChange={handleNumberChange}></input>
+          phone: <input value={newNumber} onChange={handleNumberChange}/>
         </div>
         <div>
           <button type="submit">add</button>
         </div>
       </form>
       <h2>Numbers</h2>
-      <Phonebook entries={persons} ></Phonebook>
+      <Phonebook entries={persons} filter={filterString}></Phonebook>
     </div>
   )
 }
