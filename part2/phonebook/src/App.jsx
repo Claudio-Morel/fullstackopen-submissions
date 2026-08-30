@@ -16,6 +16,30 @@ const Phonebook = ({ entries, filter }) => {
   )
 }
 
+const Filter = ({ filterString, handleFilterChange }) => {
+  return (
+    <div>
+        filter shown with<input value={filterString} onChange={handleFilterChange}></input>
+    </div>
+  )
+}
+
+const RegisterForm = ({ newName, handleNameChange, newNumber, handleNumberChange, addRegister }) => {
+  return (
+    <div>
+      <form onSubmit={addRegister}>
+        <div>
+          name: <input value={newName} onChange={handleNameChange} />
+          phone: <input value={newNumber} onChange={handleNumberChange}/>
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -71,19 +95,22 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      <div>
-          filter shpoown with<input value={filterString} onChange={handleFilterChange}></input>
-      </div>
-      <form onSubmit={addRegister}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-          phone: <input value={newNumber} onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <h1>Phonebook</h1>
+
+      <Filter
+        filterString={filterString}
+        handleFilterChange={handleFilterChange}>
+      </Filter>
+
+      <h2>Add new</h2>
+      <RegisterForm
+        newName={newName}
+        handleNameChange={handleNameChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
+        addRegister={addRegister}
+      ></RegisterForm>
+
       <h2>Numbers</h2>
       <Phonebook entries={persons} filter={filterString}></Phonebook>
     </div>
