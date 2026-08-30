@@ -13,10 +13,7 @@ const Part = ({ part }) => (
 )
 
 const Total = ({ parts }) => {
-  let total = 0;
-  for (let i = 0; i < parts.length; i++){
-    total += parts[i].exercises
-  }
+  let total = parts.reduce((acumulator, part) => acumulator + part.exercises, 0)
 
   return  (
     <div>
@@ -53,6 +50,11 @@ const App = () => {
         name: 'State of a component',
         exercises: 14,
         id: 3
+      },
+      {
+        name: 'Redux',
+        exercises: 11,
+        id: 4
       }
     ]
   }
