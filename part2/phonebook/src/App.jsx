@@ -1,20 +1,37 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personsService from './services/persons'
 
 
-const Register = ({ entry }) => {
-  return <p>{entry.name} {entry.number}</p>
+const Register = ({ entry, eraseHandler }) => {
+  return <div>
+    {entry.name} {entry.number} <button onClick={eraseHandler}>delete</button>
+  </div>
 }
 
-const Phonebook = ({ entries, filter }) => {
+const Phonebook = ({ entries, setEntries, filter }) => {
   const filteredEntries = entries.filter(entry =>
     entry.name.toLowerCase().includes(filter.toLowerCase())
   );
 
+  const generateEraseHandler = (toErase) => {
+    return (
+      () => {
+        console.log(`${toErase.id} is going to be erased`)
+        if (confirm(`are you sure you want to delete ${toErase.id} (${toErase.name})?`)) {
+          personsService.erase(toErase.id)
+          const updatedEntries = entries.filter(entry => entry.id != toErase.id)
+          setEntries(updatedEntries)
+          console.log(`${toErase.id} correctly deleted`)
+        }
+        else {
+          console.log(`${toErase.id} was not deleted`)
+        }
+      }
+    )
+  }
   return (
     <div>
-      {filteredEntries.map(entry => <Register key={entry.id} entry={entry} /> )}
+      {filteredEntries.map(entry => <Register key={entry.id} entry={entry} eraseHandler={ generateEraseHandler(entry)} /> )}
     </div>
   )
 }
@@ -121,7 +138,10 @@ const App = () => {
       ></RegisterForm>
 
       <h2>Numbers</h2>
-      <Phonebook entries={persons} filter={filterString}></Phonebook>
+      <Phonebook
+        entries={persons}
+        setEntries={setPersons}
+        filter={filterString}></Phonebook>
     </div>
   )
 }
