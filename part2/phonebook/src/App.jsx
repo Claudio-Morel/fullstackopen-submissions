@@ -31,7 +31,13 @@ const Phonebook = ({ entries, setEntries, filter }) => {
   }
   return (
     <div>
-      {filteredEntries.map(entry => <Register key={entry.id} entry={entry} eraseHandler={ generateEraseHandler(entry)} /> )}
+      {filteredEntries.map((entry) =>
+        <Register
+          key={entry.id}
+          entry={entry}
+          eraseHandler={generateEraseHandler(entry)}
+        />
+      )}
     </div>
   )
 }
@@ -44,10 +50,10 @@ const Filter = ({ filterString, handleFilterChange }) => {
   )
 }
 
-const RegisterForm = ({ newName, handleNameChange, newNumber, handleNumberChange, addRegister }) => {
+const RegisterForm = ({ newName, handleNameChange, newNumber, handleNumberChange, handleForm }) => {
   return (
     <div>
-      <form onSubmit={addRegister}>
+      <form onSubmit={handleForm}>
         <div>
           name: <input value={newName} onChange={handleNameChange} />
           phone: <input value={newNumber} onChange={handleNumberChange}/>
@@ -96,15 +102,28 @@ const App = () => {
     setFilterString(event.target.value)
   }
 
-  const addRegister = (event) => {
-    event.preventDefault()
+  const updateNumber = () => {
+    let updateString = `${newName} already exists in phonebook, do you want to update his number?`
+    if (confirm(updateString)) {
+      const originalPerson = persons.find(person => person.name === newName)
+      const updatedPerson = { ...originalPerson, number: newNumber }
 
-    if (alreadyExists(newName, persons)) {
-      let alertString = `${newName} already exists`
-        alert(alertString)
-      return
+      console.log(originalPerson)
+      console.log(updatedPerson)
+
+      personsService.
+        update(originalPerson.id, updatedPerson)
+        .then(
+          returnedPerson => {
+            setPersons(persons.map(person => person.id === originalPerson.id ? returnedPerson : person))
+            setNewName("")
+            setNewNumber("")
+          }
+        )
     }
+  }
 
+  const addNumber = () => {
     const newPerson = {
       name: newName,
       number: newNumber
@@ -117,6 +136,16 @@ const App = () => {
         setNewName("")
         setNewNumber("")
       })
+  }
+
+  const handleForm = (event) => {
+    event.preventDefault()
+
+    if (alreadyExists(newName, persons)) {
+      updateNumber()
+    } else {
+      addNumber()
+    }
   }
 
   return (
@@ -134,7 +163,7 @@ const App = () => {
         handleNameChange={handleNameChange}
         newNumber={newNumber}
         handleNumberChange={handleNumberChange}
-        addRegister={addRegister}
+        handleForm={handleForm}
       ></RegisterForm>
 
       <h2>Numbers</h2>
