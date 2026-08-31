@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios  from 'axios'
+import axios from 'axios'
+import personsService from './services/persons'
 
 
 const Register = ({ entry }) => {
@@ -48,14 +49,11 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterString, setFilterString] = useState('')
 
-  const baseUrl = 'http://localhost:3001/persons'
-
   const fetchDataHook = () => {
-    axios
-      .get(baseUrl)
+    personsService.getAll()
       .then(response => {
-        setPersons(response.data)
-      })
+      setPersons(response)
+    })
   }
 
   useEffect(fetchDataHook, [])
@@ -95,10 +93,10 @@ const App = () => {
       number: newNumber
     }
 
-    axios
-      .post(baseUrl, newPerson)
+    personsService
+      .create(newPerson)
       .then(response => {
-        setPersons(persons.concat(response.data))
+        setPersons(persons.concat(response))
         setNewName("")
         setNewNumber("")
       })
