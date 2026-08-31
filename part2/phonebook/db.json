@@ -1,5 +1,5 @@
 {
-  "persons":[
+  "persons": [
     {
       "name": "Arto Hellas",
       "number": "040-123456",
@@ -19,6 +19,22 @@
       "name": "Mary Poppendieck",
       "number": "39-23-6423122",
       "id": "4"
+    },
+    {
+      "name": "locura",
+      "number": "11",
+      "id": "d6SRWk-mqzQ"
+    },
+    {
+      "name": "locuraa",
+      "number": "11",
+      "id": "60bbMIi-yZs"
+    },
+    {
+      "name": "locuron",
+      "number": "",
+      "id": "N0Z8ZvEfj7U"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

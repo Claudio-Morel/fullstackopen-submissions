@@ -46,12 +46,13 @@ const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [newId, setNewId] = useState(5)
   const [filterString, setFilterString] = useState('')
+
+  const baseUrl = 'http://localhost:3001/persons'
 
   const fetchDataHook = () => {
     axios
-      .get('http://localhost:3001/persons')
+      .get(baseUrl)
       .then(response => {
         setPersons(response.data)
       })
@@ -91,13 +92,16 @@ const App = () => {
 
     const newPerson = {
       name: newName,
-      number: newNumber,
-      id: newId
+      number: newNumber
     }
-    setPersons(persons.concat(newPerson))
-    setNewId(newId + 1)
-    setNewName("")
-    setNewNumber("")
+
+    axios
+      .post(baseUrl, newPerson)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setNewName("")
+        setNewNumber("")
+      })
   }
 
   return (
