@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import personsService from './services/persons'
+import Notification from './components/Notification'
 
 
 const Register = ({ entry, eraseHandler }) => {
@@ -71,6 +72,19 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterString, setFilterString] = useState('')
+  const [notification, setNotification] = useState({ message: '', className : ''})
+
+  const timeoutNotificationHandler = (originalNotificationMessage) => {
+    return (() => {
+      setNotification(currentNotification => {
+        if (currentNotification.message === originalNotificationMessage) {
+          return { message: '', className: '' }
+        }
+
+        return currentNotification
+      })
+    })
+  }
 
   const fetchDataHook = () => {
     personsService.getAll()
@@ -120,7 +134,15 @@ const App = () => {
             setNewNumber("")
           }
         )
+
+      const newNotification = {
+        message : `Updated ${updatedPerson.name} number from ${originalPerson.number} to ${updatedPerson.number}`,
+        className : 'success'
+      }
+      setNotification(newNotification)
+      setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
     }
+
   }
 
   const addNumber = () => {
@@ -136,6 +158,14 @@ const App = () => {
         setNewName("")
         setNewNumber("")
       })
+
+    const newNotification = {
+      message : `Added ${newPerson.name} correctly`,
+      className : 'success'
+    }
+    setNotification(newNotification)
+    setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+    console.log(notification)
   }
 
   const handleForm = (event) => {
@@ -152,6 +182,10 @@ const App = () => {
     <div>
       <h1>Phonebook</h1>
 
+      <Notification
+        notification={notification}
+      ></Notification>
+      {console.log(notification)}
       <Filter
         filterString={filterString}
         handleFilterChange={handleFilterChange}>
