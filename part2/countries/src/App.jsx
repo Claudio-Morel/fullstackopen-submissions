@@ -22,7 +22,12 @@ function App() {
     <div>
       < Filter filterString={filterString} handleFilterChange={handleFilterChange} />
 
-      < Countries countries={countries} filter={filterString} />
+      < Countries
+        countries={countries}
+        filter={filterString}
+        setFilterString={setFilterString}
+      />
+
     </div>
   )
 
