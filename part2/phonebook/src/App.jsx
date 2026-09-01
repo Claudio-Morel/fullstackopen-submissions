@@ -122,25 +122,33 @@ const App = () => {
       const originalPerson = persons.find(person => person.name === newName)
       const updatedPerson = { ...originalPerson, number: newNumber }
 
-      console.log(originalPerson)
-      console.log(updatedPerson)
-
       personsService.
         update(originalPerson.id, updatedPerson)
         .then(
           returnedPerson => {
             setPersons(persons.map(person => person.id === originalPerson.id ? returnedPerson : person))
+            const newNotification = {
+              message: `Updated ${returnedPerson.name} number from ${originalPerson.number} to ${updatedPerson.number}`,
+              className: 'success'
+            }
+            setNotification(newNotification)
+            setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
             setNewName("")
             setNewNumber("")
           }
         )
-
-      const newNotification = {
-        message : `Updated ${updatedPerson.name} number from ${originalPerson.number} to ${updatedPerson.number}`,
-        className : 'success'
-      }
-      setNotification(newNotification)
-      setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+        .catch(
+          error => {
+            const newNotification = {
+              message : `Information of ${originalPerson.name} was already deleted`,
+              className : 'error'
+            }
+            setNotification(newNotification)
+            setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+            setNewName("")
+            setNewNumber("")
+          }
+        )
     }
 
   }
