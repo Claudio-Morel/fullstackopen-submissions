@@ -1,7 +1,12 @@
 const express = require('express')
+const morgan = require('morgan')
+
+
 const app = express()
+const logger = morgan('tiny')
 
 app.use(express.json())
+app.use(logger)
 
 // Function extracted from https://www.w3schools.com/JS/js_random.asp
 function getRndInteger(min, max) {
