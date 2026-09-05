@@ -38,6 +38,13 @@ app.get('/api/persons/:id', (request, response) => {
   }
 })
 
+app.delete('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  registry = registry.filter(register => register.id != id)
+
+  response.status(204).end()
+})
+
 app.get('/api/info', (request, response) => {
   response.send(`
     <p>Phonebook has info for ${registry.length} people</p>
