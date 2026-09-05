@@ -1,5 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const Register = require('./models/register')
 
 
 const app = express()
@@ -25,41 +27,25 @@ function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
 }
 
-let registry = [
-    {
-      "id": "1",
-      "name": "Arto Hellas",
-      "number": "040-123456"
-    },
-    {
-      "id": "2",
-      "name": "Ada Lovelace",
-      "number": "39-44-5323523"
-    },
-    {
-      "id": "3",
-      "name": "Dan Abramov",
-      "number": "12-43-234345"
-    },
-    {
-      "id": "4",
-      "name": "Mary Poppendieck",
-      "number": "39-23-6423122"
-    }
-]
-
 app.get('/api/persons', (request, response) => {
-  response.json(registry)
+  Register.find({}).then(result => {
+    response.json(result)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  const register = registry.find(register => register.id === id)
-  if (register) {
-    response.json(register)
-  } else {
-    response.status(404).end()
-  }
+  Register.findOne({ _id: id })
+    .then(register => {
+      if (register) {
+        response.json(register)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      response.status(404).end()
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -71,33 +57,29 @@ app.delete('/api/persons/:id', (request, response) => {
 
 
 app.post('/api/persons', (request, response) => {
-  const newRegister = request.body
+  const body = request.body
 
-  if (!newRegister.name) {
+  if (!body.name) {
     return response.status(400).json({
       error: 'name is missing'
     })
   }
 
-  if (!newRegister.number) {
+  if (!body.number) {
     return response.status(400).json({
       error: 'number is missing'
     })
   }
 
-  const duplicated = registry.find(register => register.name === newRegister.name)
-  if (duplicated) {
-    return response.status(400).json({
-      error: `a register with name ${newRegister.name} is already registered`
-    })
-  }
+  const newRegister = new Register({
+    name: body.name,
+    number: body.number
+  })
 
-
-  const newId = getRndInteger(0, 1000000000)
-  newRegister.id = newId.toString()
-
-  registry = registry.concat(newRegister)
-  response.json(newRegister)
+  newRegister.save().then(result => {
+    console.log('note saved!')
+    response.json(result)
+  })
 })
 
 app.get('/api/info', (request, response) => {
@@ -107,7 +89,7 @@ app.get('/api/info', (request, response) => {
   `);
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
