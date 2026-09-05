@@ -3,9 +3,20 @@ const morgan = require('morgan')
 
 
 const app = express()
-const logger = morgan('tiny')
-
 app.use(express.json())
+
+morgan.token('body', (request) => {
+  if (request.method !== 'POST') {
+    return ''
+  }
+
+  return JSON.stringify(request.body)
+})
+
+const logger = morgan(
+  ':method :url :status :res[content-length] - :response-time ms :body'
+)
+
 app.use(logger)
 
 // Function extracted from https://www.w3schools.com/JS/js_random.asp
