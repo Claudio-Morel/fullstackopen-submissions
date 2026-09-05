@@ -54,13 +54,33 @@ app.delete('/api/persons/:id', (request, response) => {
 
 
 app.post('/api/persons', (request, response) => {
-  const register = request.body
+  const newRegister = request.body
+
+  if (!newRegister.name) {
+    return response.status(400).json({
+      error: 'name is missing'
+    })
+  }
+
+  if (!newRegister.number) {
+    return response.status(400).json({
+      error: 'number is missing'
+    })
+  }
+
+  const duplicated = registry.find(register => register.name === newRegister.name)
+  if (duplicated) {
+    return response.status(400).json({
+      error: `a register with name ${newRegister.name} is already registered`
+    })
+  }
+
 
   const newId = getRndInteger(0, 1000000000)
-  register.id = newId.toString()
+  newRegister.id = newId.toString()
 
-  registry = registry.concat(register)
-  response.json(register)
+  registry = registry.concat(newRegister)
+  response.json(newRegister)
 })
 
 app.get('/api/info', (request, response) => {
