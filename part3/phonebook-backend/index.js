@@ -28,6 +28,16 @@ app.get('/api/persons', (request, response) => {
   response.json(registry)
 })
 
+app.get('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  const register = registry.find(register => register.id === id)
+  if (register) {
+    response.json(register)
+  } else {
+    response.status(404).end()
+  }
+})
+
 app.get('/api/info', (request, response) => {
   response.send(`
     <p>Phonebook has info for ${registry.length} people</p>
