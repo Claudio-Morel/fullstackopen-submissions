@@ -1,6 +1,13 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
+// Function extracted from https://www.w3schools.com/JS/js_random.asp
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min) ) + min;
+}
+
 let registry = [
     {
       "id": "1",
@@ -43,6 +50,17 @@ app.delete('/api/persons/:id', (request, response) => {
   registry = registry.filter(register => register.id != id)
 
   response.status(204).end()
+})
+
+
+app.post('/api/persons', (request, response) => {
+  const register = request.body
+
+  const newId = getRndInteger(0, 1000000000)
+  register.id = newId.toString()
+
+  registry = registry.concat(register)
+  response.json(register)
 })
 
 app.get('/api/info', (request, response) => {
