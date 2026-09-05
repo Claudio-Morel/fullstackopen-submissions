@@ -3,7 +3,6 @@ const morgan = require('morgan')
 
 
 const app = express()
-app.use(express.json())
 
 morgan.token('body', (request) => {
   if (request.method !== 'POST') {
@@ -17,6 +16,8 @@ const logger = morgan(
   ':method :url :status :res[content-length] - :response-time ms :body'
 )
 
+app.use(express.json())
+app.use(express.static('dist'))
 app.use(logger)
 
 // Function extracted from https://www.w3schools.com/JS/js_random.asp
@@ -106,7 +107,7 @@ app.get('/api/info', (request, response) => {
   `);
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

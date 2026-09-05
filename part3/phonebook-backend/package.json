@@ -9,6 +9,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
+    "build:ui": "cd ../phonebook-frontend/ && npm install --no-package-lock && npm run build && rm -rf ../phonebook-backend/dist && cp -r dist ../phonebook-backend",
+    "predeploy": "npm run build:ui",
+    "deploy": "railway up . --path-as-root -m \"Deploy phonebook backend\"",
+    "deploy:ci": "npm run build:ui && railway up . --path-as-root --ci -m \"Deploy phonebook backend\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

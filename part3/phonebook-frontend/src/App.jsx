@@ -1,0 +1,227 @@
+import { useState, useEffect } from 'react'
+import personsService from './services/persons'
+import Notification from './components/Notification'
+
+
+const Register = ({ entry, eraseHandler }) => {
+  return <div>
+    {entry.name} {entry.number} <button onClick={eraseHandler}>delete</button>
+  </div>
+}
+
+const Phonebook = ({ entries, filter, eraseHandler}) => {
+  const filteredEntries = entries.filter(entry =>
+    entry.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const generateEraseHandler = (toErase) => { return () => { eraseHandler(toErase) } }
+
+  return (
+    <div>
+      {filteredEntries.map((entry) =>
+        <Register
+          key={entry.id}
+          entry={entry}
+          eraseHandler={generateEraseHandler(entry)}
+        />
+      )}
+    </div>
+  )
+}
+
+const Filter = ({ filterString, handleFilterChange }) => {
+  return (
+    <div>
+        filter shown with<input value={filterString} onChange={handleFilterChange}></input>
+    </div>
+  )
+}
+
+const RegisterForm = ({ newName, handleNameChange, newNumber, handleNumberChange, handleForm }) => {
+  return (
+    <div>
+      <form onSubmit={handleForm}>
+        <div>
+          name: <input value={newName} onChange={handleNameChange} />
+          phone: <input value={newNumber} onChange={handleNumberChange}/>
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+const App = () => {
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filterString, setFilterString] = useState('')
+  const [notification, setNotification] = useState({ message: '', className : ''})
+
+  const timeoutNotificationHandler = (originalNotificationMessage) => {
+    return (() => {
+      setNotification(currentNotification => {
+        if (currentNotification.message === originalNotificationMessage) {
+          return { message: '', className: '' }
+        }
+
+        return currentNotification
+      })
+    })
+  }
+
+  const fetchDataHook = () => {
+    personsService.getAll()
+      .then(response => {
+      setPersons(response)
+    })
+  }
+
+  useEffect(fetchDataHook, [])
+
+  const alreadyExists = (name, existentNames) => {
+    for (let i = 0; i < existentNames.length; i++) {
+      if (existentNames[i].name == name) {
+        return true
+      }
+    }
+    return false
+  }
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const handleFilterChange = (event) => {
+    setFilterString(event.target.value)
+  }
+
+  const updateNumber = () => {
+    let updateString = `${newName} already exists in phonebook, do you want to update his number?`
+    if (confirm(updateString)) {
+      const originalPerson = persons.find(person => person.name === newName)
+      const updatedPerson = { ...originalPerson, number: newNumber }
+
+      personsService.
+        update(originalPerson.id, updatedPerson)
+        .then(
+          returnedPerson => {
+            setPersons(persons.map(person => person.id === originalPerson.id ? returnedPerson : person))
+            const newNotification = {
+              message: `Updated ${returnedPerson.name} number from ${originalPerson.number} to ${updatedPerson.number}`,
+              className: 'success'
+            }
+            setNotification(newNotification)
+            setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+            setNewName("")
+            setNewNumber("")
+          }
+        )
+        .catch(
+          error => {
+            const newNotification = {
+              message : `Information of ${originalPerson.name} was already deleted`,
+              className : 'error'
+            }
+            setNotification(newNotification)
+            setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+            setNewName("")
+            setNewNumber("")
+          }
+        )
+    }
+
+  }
+
+  const eraseNumber = (toErase) => {
+    console.log(`${toErase.id} is going to be erased`)
+    if (confirm(`are you sure you want to delete ${toErase.id} (${toErase.name})?`)){
+      personsService
+        .erase(toErase.id)
+        .then(() => {
+          const updatedEntries = persons.filter(entry => entry.id != toErase.id)
+          setPersons(updatedEntries)
+          console.log(`${toErase.id} correctly deleted`)
+          const newNotification = {
+            message: `Deleted ${toErase.name} number from the registry`,
+            className: 'success'
+          }
+          setNotification(newNotification)
+          setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+        })
+    }
+    else {
+      console.log(`${toErase.id} was not deleted`)
+    }
+  }
+
+  const addNumber = () => {
+    const newPerson = {
+      name: newName,
+      number: newNumber
+    }
+
+    personsService
+      .create(newPerson)
+      .then(response => {
+        setPersons(persons.concat(response))
+        setNewName("")
+        setNewNumber("")
+      })
+
+    const newNotification = {
+      message : `Added ${newPerson.name} correctly`,
+      className : 'success'
+    }
+    setNotification(newNotification)
+    setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+  }
+
+  const handleForm = (event) => {
+    event.preventDefault()
+
+    if (alreadyExists(newName, persons)) {
+      updateNumber()
+    } else {
+      addNumber()
+    }
+  }
+
+  return (
+    <div>
+      <h1>Phonebook</h1>
+
+      <Notification
+        notification={notification}
+      ></Notification>
+      <Filter
+        filterString={filterString}
+        handleFilterChange={handleFilterChange}>
+      </Filter>
+
+      <h2>Add new</h2>
+      <RegisterForm
+        newName={newName}
+        handleNameChange={handleNameChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
+        handleForm={handleForm}
+      ></RegisterForm>
+
+      <h2>Numbers</h2>
+      <Phonebook
+        entries={persons}
+        setEntries={setPersons}
+        filter={filterString}
+        eraseHandler={eraseNumber}></Phonebook>
+    </div>
+  )
+}
+
+export default App
