@@ -126,7 +126,7 @@ const App = () => {
         .catch(
           error => {
             const newNotification = {
-              message : `Information of ${originalPerson.name} was already deleted`,
+              message : `${error.response.data.error}`,
               className : 'error'
             }
             setNotification(newNotification)
@@ -173,14 +173,22 @@ const App = () => {
         setPersons(persons.concat(response))
         setNewName("")
         setNewNumber("")
+        const newNotification = {
+          message : `Added ${newPerson.name} correctly`,
+          className : 'success'
+        }
+        setNotification(newNotification)
+        setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
       })
-
-    const newNotification = {
-      message : `Added ${newPerson.name} correctly`,
-      className : 'success'
-    }
-    setNotification(newNotification)
-    setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+      .catch(error => {
+        const newNotification = {
+          message : `${error.response.data.error}`,
+          className : 'error'
+        }
+        setNotification(newNotification)
+        setTimeout(timeoutNotificationHandler(newNotification.message), 5000)
+        console.log(error.response.data.error)
+      })
   }
 
   const handleForm = (event) => {

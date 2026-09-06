@@ -13,12 +13,19 @@
     "predeploy": "npm run build:ui",
     "deploy": "railway up . --path-as-root -m \"Deploy phonebook backend\"",
     "deploy:ci": "npm run build:ui && railway up . --path-as-root --ci -m \"Deploy phonebook backend\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   },
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.9.5",
     "morgan": "^1.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0"
   }
 }
