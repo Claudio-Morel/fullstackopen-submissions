@@ -37,6 +37,18 @@ test('blogs are returned as JSON', async () => {
   assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
+test('blogs are identified by id JSON field', async () => {
+  const response = await api
+    .get('/api/blogs')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  for (const blog of response.body) {
+    assert.strictEqual(blog.hasOwnProperty('id'), true)
+    assert.strictEqual(blog._id, undefined)
+  }
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
