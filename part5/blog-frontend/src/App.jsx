@@ -104,6 +104,32 @@ const App = () => {
     }
   }
 
+  const handleLike = async blog => {
+    try {
+      const userId = typeof blog.user === 'string' ? blog.user : blog.user?.id
+      const blogToUpdate = {
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes + 1,
+        user: userId,
+      }
+      const updatedBlog = await blogService.update(blog.id, blogToUpdate)
+
+      setBlogs(currentBlogs =>
+        currentBlogs.map(currentBlog =>
+          currentBlog.id === updatedBlog.id ? updatedBlog : currentBlog
+        )
+      )
+    } catch (error) {
+      console.error('blog like failed', error)
+      showNotification({
+        message: error.response?.data?.error || 'blog like failed',
+        className: 'error',
+      })
+    }
+  }
+
   return (
     <div>
       {user === null ? (
@@ -123,7 +149,7 @@ const App = () => {
           <Togglable buttonLabel="create new blog" ref={blogFormRef}>
             <BlogForm onCreate={handleCreateBlog} />
           </Togglable>
-          <BlogList blogs={blogs} />
+          <BlogList blogs={blogs} onLike={handleLike} />
         </div>
       )}
     </div>
