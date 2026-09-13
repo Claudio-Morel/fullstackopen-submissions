@@ -1,7 +1,9 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, onLike }) => {
+const Blog = ({ blog, onLike, onRemove, currentUser }) => {
   const [detailsVisible, setDetailsVisible] = useState(false)
+  const blogUserId = typeof blog.user === 'string' ? blog.user : blog.user?.id
+  const canRemove = blogUserId === currentUser?.id
 
   const blogStyle = {
     paddingTop: 10,
@@ -17,6 +19,14 @@ const Blog = ({ blog, onLike }) => {
 
   const handleLike = () => {
     onLike(blog)
+  }
+
+  const handleRemove = async () => {
+    const confirmed = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
+
+    if (confirmed) {
+      await onRemove(blog)
+    }
   }
 
   return (
@@ -35,6 +45,9 @@ const Blog = ({ blog, onLike }) => {
             <button type="button" onClick={handleLike}>like</button>
           </div>
           <div>{blog.user?.name}</div>
+          {canRemove && (
+            <button type="button" onClick={handleRemove}>remove</button>
+          )}
         </div>
       )}
     </div>

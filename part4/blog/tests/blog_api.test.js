@@ -115,7 +115,12 @@ test('create a new blog by sending a POST request', async () => {
   const savedBlog = blogsAtEnd.find(blog => blog.title === newBlog.title)
   assert(savedBlog)
   assert.strictEqual(savedBlog.url, newBlog.url)
-  assert.deepStrictEqual(response.body, savedBlog)
+  assert.strictEqual(response.body.id, savedBlog.id)
+  assert.strictEqual(response.body.title, savedBlog.title)
+  assert.strictEqual(response.body.user.id, savedBlog.user)
+  assert.strictEqual(response.body.user.username, 'root')
+  assert.strictEqual(response.body.user.name, 'Jesus')
+  assert.strictEqual(Object.hasOwn(response.body.user, 'passwordHash'), false)
 })
 
 test('a created blog is associated with the user identified by the token', async () => {

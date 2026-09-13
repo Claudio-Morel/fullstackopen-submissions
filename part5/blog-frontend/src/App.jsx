@@ -130,6 +130,25 @@ const App = () => {
     }
   }
 
+  const handleRemoveBlog = async blog => {
+    try {
+      await blogService.remove(blog.id)
+      setBlogs(currentBlogs =>
+        currentBlogs.filter(currentBlog => currentBlog.id !== blog.id)
+      )
+      showNotification({
+        message: `blog ${blog.title} removed`,
+        className: 'success',
+      })
+    } catch (error) {
+      console.error('blog removal failed', error)
+      showNotification({
+        message: error.response?.data?.error || 'blog removal failed',
+        className: 'error',
+      })
+    }
+  }
+
   return (
     <div>
       {user === null ? (
@@ -149,7 +168,12 @@ const App = () => {
           <Togglable buttonLabel="create new blog" ref={blogFormRef}>
             <BlogForm onCreate={handleCreateBlog} />
           </Togglable>
-          <BlogList blogs={blogs} onLike={handleLike} />
+          <BlogList
+            blogs={blogs}
+            onLike={handleLike}
+            onRemove={handleRemoveBlog}
+            currentUser={user}
+          />
         </div>
       )}
     </div>

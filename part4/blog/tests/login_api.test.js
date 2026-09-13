@@ -44,6 +44,7 @@ test('login succeeds with valid credentials', async () => {
   assert.strictEqual(decodedToken.username, credentials.username)
 
   const user = await User.findOne({ username: credentials.username })
+  assert.strictEqual(response.body.id, user.id)
   assert.strictEqual(decodedToken.id, user.id)
 })
 
