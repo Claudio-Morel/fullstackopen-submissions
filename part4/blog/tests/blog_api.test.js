@@ -92,6 +92,38 @@ test('likes defaults to zero when missing', async () => {
   assert.strictEqual(savedBlog.likes, 0)
 })
 
+test('blog without title return 400', async () => {
+  const newBlog = {
+    author: 'Claudio Morel',
+    url: 'https://example.com/cachis/without-title',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await Blog.find({})
+  assert.strictEqual(blogsAtEnd.length, initialBlogs.length)
+})
+
+test('blog without url returns 400', async () => {
+  const newBlog = {
+    title: 'A blog without URL',
+    author: 'Claudio Morel',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await Blog.find({})
+  assert.strictEqual(blogsAtEnd.length, initialBlogs.length)
+})
+
 
 after(async () => {
   await mongoose.connection.close()
