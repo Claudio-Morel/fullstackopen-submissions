@@ -336,6 +336,10 @@ test('likes of a blog can be updated', async () => {
 
   assert.strictEqual(response.body.id, blogToUpdate.id)
   assert.strictEqual(response.body.likes, updatedLikes)
+  assert(response.body.user)
+  assert.strictEqual(response.body.user.username, 'root')
+  assert.strictEqual(response.body.user.name, 'Jesus')
+  assert.strictEqual(Object.hasOwn(response.body.user, 'passwordHash'), false)
 
   const blogsAtEnd = await helper.blogsInDb()
   const updatedBlog = blogsAtEnd.find(blog => blog.id === blogToUpdate.id)
