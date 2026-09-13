@@ -56,6 +56,7 @@ test('create a new blog by sending a POST request', async () => {
   const savedBlog = blogsAtEnd.find(blog => blog.title === newBlog.title)
   assert(savedBlog)
   assert.strictEqual(savedBlog.url, newBlog.url)
+  assert.deepStrictEqual(response.body, savedBlog)
 })
 
 test('likes defaults to zero when missing', async () => {
@@ -125,6 +126,54 @@ test('a blog can be deleted', async () => {
 
   assert(!idsAtEnd.includes(deletedId))
   assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1)
+})
+
+test('deleting a nonexisting blog fails with 404', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const nonExistingId = await helper.nonExistingId()
+
+  await api
+    .delete(`/api/blogs/${nonExistingId}`)
+    .expect(404)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+})
+
+test('likes of a blog can be updated', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+  const updatedLikes = blogToUpdate.likes + 1
+
+  const response = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send({ likes: updatedLikes })
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.id, blogToUpdate.id)
+  assert.strictEqual(response.body.likes, updatedLikes)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const updatedBlog = blogsAtEnd.find(blog => blog.id === blogToUpdate.id)
+
+  assert(updatedBlog)
+  assert.strictEqual(updatedBlog.likes, updatedLikes)
+  assert.strictEqual(updatedBlog.title, blogToUpdate.title)
+  assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+})
+
+test('updating a nonexisting blog fails with 404', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const nonExistingId = await helper.nonExistingId()
+
+  await api
+    .put(`/api/blogs/${nonExistingId}`)
+    .send({ likes: 10 })
+    .expect(404)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
 })
 
 
