@@ -1,17 +1,37 @@
 const assert = require('node:assert')
 const { test, beforeEach, after } = require('node:test')
+const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('../utils/test_helper')
 
 const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(helper.initialBlogs)
+  await User.deleteMany({})
+
+  const passwordHash = await bcrypt.hash('thispasswordisgonamakeittotestdbyei!!', 10)
+  const user = new User({
+    username: 'root',
+    name: 'Jesus',
+    passwordHash,
+  })
+  const savedUser = await user.save()
+
+  const savedBlogs = await Blog.insertMany(
+    helper.initialBlogs.map(blog => ({
+      ...blog,
+      user: savedUser._id,
+    }))
+  )
+
+  savedUser.blogs = savedBlogs.map(blog => blog._id)
+  await savedUser.save()
 })
 
 test('blogs are returned as JSON', async () => {
@@ -33,6 +53,33 @@ test('blogs are identified by id JSON field', async () => {
     assert.strictEqual(blog.hasOwnProperty('id'), true)
     assert.strictEqual(blog._id, undefined)
   }
+})
+
+test('blogs include the creator information', async () => {
+  const response = await api
+    .get('/api/blogs')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  for (const blog of response.body) {
+    assert(blog.user)
+    assert.strictEqual(blog.user.username, 'root')
+    assert.strictEqual(blog.user.name, 'Jesus')
+    assert.strictEqual(Object.hasOwn(blog.user, 'passwordHash'), false)
+  }
+})
+
+test('users include the blogs they created', async () => {
+  const response = await api
+    .get('/api/users')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const root = response.body.find(user => user.username === 'root')
+
+  assert(root)
+  assert.strictEqual(root.blogs.length, helper.initialBlogs.length)
+  assert(root.blogs.some(blog => blog.title === helper.initialBlogs[0].title))
 })
 
 test('create a new blog by sending a POST request', async () => {
@@ -57,6 +104,29 @@ test('create a new blog by sending a POST request', async () => {
   assert(savedBlog)
   assert.strictEqual(savedBlog.url, newBlog.url)
   assert.deepStrictEqual(response.body, savedBlog)
+})
+
+test('a created blog is associated with an existing user', async () => {
+  const user = await User.findOne({ username: 'root' })
+  const newBlog = {
+    title: 'Blog with a creator',
+    author: 'Claudio Morel',
+    url: 'https://example.com/blog-with-creator',
+    likes: 3,
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+
+  const savedBlog = await Blog.findById(response.body.id)
+  assert(savedBlog)
+  assert.strictEqual(savedBlog.user.toString(), user._id.toString())
+
+  const savedUser = await User.findById(user._id)
+  const blogIds = savedUser.blogs.map(blogId => blogId.toString())
+  assert(blogIds.includes(savedBlog._id.toString()))
 })
 
 test('likes defaults to zero when missing', async () => {

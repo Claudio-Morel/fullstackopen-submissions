@@ -18,7 +18,7 @@ const initialBlogs = [
 
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
-  return blogs.map(blog => blog.toJSON())
+  return blogs.map(blog => JSON.parse(JSON.stringify(blog)))
 }
 
 const nonExistingId = async () => {
@@ -35,7 +35,7 @@ const nonExistingId = async () => {
 
 const usersInDb = async () => {
   const users = await User.find({})
-  return users.map(user => user.toJSON())
+  return users.map(user => JSON.parse(JSON.stringify(user)))
 }
 
 module.exports = {
