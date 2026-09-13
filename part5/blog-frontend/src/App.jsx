@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import BlogList from './components/BlogList'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -12,6 +13,7 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({ message: '', className: '' })
+  const blogFormRef = useRef(null)
 
   const timeoutNotificationHandler = originalNotificationMessage => {
     return () => {
@@ -86,6 +88,7 @@ const App = () => {
     try {
       const createdBlog = await blogService.create(blog)
       setBlogs(currentBlogs => currentBlogs.concat(createdBlog))
+      blogFormRef.current.hide()
       showNotification({
         message: `a new blog ${createdBlog.title} added`,
         className: 'success',
@@ -117,8 +120,9 @@ const App = () => {
             {user.name} logged in{' '}
             <button type="button" onClick={handleLogout}>logout</button>
           </p>
-          <h3>create new blog</h3>
-          <BlogForm onCreate={handleCreateBlog} />
+          <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+            <BlogForm onCreate={handleCreateBlog} />
+          </Togglable>
           <BlogList blogs={blogs} />
         </div>
       )}
