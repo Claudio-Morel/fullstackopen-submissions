@@ -159,8 +159,8 @@ const App = () => {
         </div>
       ) : (
         <div>
-            <h2>blogs</h2>
-            <Notification notification={notification} />
+          <h2>blogs</h2>
+          <Notification notification={notification} />
           <p>
             {user.name} logged in{' '}
             <button type="button" onClick={handleLogout}>logout</button>
