@@ -72,6 +72,27 @@ test('create a new blog by sending a POST request', async () => {
   assert.strictEqual(savedBlog.url, newBlog.url)
 })
 
+test('likes defaults to zero when missing', async () => {
+  const newBlog = {
+    title: 'Nobody likes this post yet',
+    author: 'Claudio Morel',
+    url: 'https://example.com/cachis/no-likes',
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.likes, 0)
+
+  const savedBlog = await Blog.findById(response.body.id)
+  assert(savedBlog)
+  assert.strictEqual(savedBlog.likes, 0)
+})
+
+
 after(async () => {
   await mongoose.connection.close()
 })
