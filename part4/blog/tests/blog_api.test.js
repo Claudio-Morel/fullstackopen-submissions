@@ -5,27 +5,13 @@ const supertest = require('supertest')
 
 const app = require('../app')
 const Blog = require('../models/blog')
+const helper = require('../utils/test_helper')
 
 const api = supertest(app)
 
-const initialBlogs = [
-  {
-    title: 'Primer blog',
-    author: 'Claudio Morel',
-    url: 'https://example.com/cachis',
-    likes: 6,
-  },
-  {
-    title: 'Segundo blog',
-    author: 'Diego Morel',
-    url: 'https://example.com/pigot',
-    likes: 7,
-  },
-]
-
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogs)
+  await Blog.insertMany(helper.initialBlogs)
 })
 
 test('blogs are returned as JSON', async () => {
@@ -34,7 +20,7 @@ test('blogs are returned as JSON', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
-  assert.strictEqual(response.body.length, initialBlogs.length)
+  assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
 test('blogs are identified by id JSON field', async () => {
@@ -63,9 +49,9 @@ test('create a new blog by sending a POST request', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  const blogsAtEnd = await Blog.find({})
+  const blogsAtEnd = await helper.blogsInDb()
 
-  assert.strictEqual(blogsAtEnd.length, initialBlogs.length + 1)
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
 
   const savedBlog = blogsAtEnd.find(blog => blog.title === newBlog.title)
   assert(savedBlog)
@@ -87,7 +73,8 @@ test('likes defaults to zero when missing', async () => {
 
   assert.strictEqual(response.body.likes, 0)
 
-  const savedBlog = await Blog.findById(response.body.id)
+  const blogsAtEnd = await helper.blogsInDb()
+  const savedBlog = blogsAtEnd.find(blog => blog.id === response.body.id)
   assert(savedBlog)
   assert.strictEqual(savedBlog.likes, 0)
 })
@@ -104,8 +91,8 @@ test('blog without title return 400', async () => {
     .expect(400)
     .expect('Content-Type', /application\/json/)
 
-  const blogsAtEnd = await Blog.find({})
-  assert.strictEqual(blogsAtEnd.length, initialBlogs.length)
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
 })
 
 test('blog without url returns 400', async () => {
@@ -120,8 +107,24 @@ test('blog without url returns 400', async () => {
     .expect(400)
     .expect('Content-Type', /application\/json/)
 
-  const blogsAtEnd = await Blog.find({})
-  assert.strictEqual(blogsAtEnd.length, initialBlogs.length)
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+})
+
+test('a blog can be deleted', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToDelete = blogsAtStart[0]
+  const deletedId = blogToDelete.id
+
+  await api
+    .delete(`/api/blogs/${deletedId}`)
+    .expect(204)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const idsAtEnd = blogsAtEnd.map(blog => blog.id)
+
+  assert(!idsAtEnd.includes(deletedId))
+  assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1)
 })
 
 
