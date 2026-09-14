@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
-test('renders title and author but not URL or likes by default', () => {
+test('shows blog information but no buttons to an unauthenticated user', () => {
   const blog = {
     title: 'This Blog is just for testing',
     author: 'Pigot Morel',
@@ -17,34 +16,15 @@ test('renders title and author but not URL or likes by default', () => {
   render(<Blog blog={blog} />)
 
   expect(
-    screen.getByText(`${blog.title} ${blog.author}`, { exact: false })
+    screen.getByRole('heading', { name: `${blog.title} ${blog.author}` })
   ).toBeInTheDocument()
-  expect(screen.queryByText(blog.url)).not.toBeInTheDocument()
-  expect(screen.queryByText(`likes ${blog.likes}`)).not.toBeInTheDocument()
-})
-
-test('shows URL and likes after clicking the view button', async () => {
-  const blog = {
-    title: 'This Blog is just for testing',
-    author: 'Pigot Morel',
-    url: 'https://example.com/pigot/testing',
-    likes: 67,
-    user: {
-      id: '6769',
-      name: 'Diego Morel'
-    }
-  }
-  const user = userEvent.setup()
-
-  render(<Blog blog={blog} />)
-
-  await user.click(screen.getByRole('button', { name: 'view' }))
-
   expect(screen.getByText(blog.url)).toBeInTheDocument()
   expect(screen.getByText(`likes ${blog.likes}`, { exact: false })).toBeInTheDocument()
+  expect(screen.getByText(blog.user.name)).toBeInTheDocument()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
 })
 
-test('calls the like handler twice when like is clicked twice', async () => {
+test('shows only the like button to an authenticated user who is not the creator', () => {
   const blog = {
     title: 'This Blog is just for testing',
     author: 'Pigot Morel',
@@ -55,16 +35,44 @@ test('calls the like handler twice when like is clicked twice', async () => {
       name: 'Diego Morel'
     }
   }
-  const onLike = vi.fn()
-  const user = userEvent.setup()
+  const currentUser = {
+    id: '1234',
+    name: 'Claudio Morel'
+  }
 
-  render(<Blog blog={blog} onLike={onLike} />)
+  render(<Blog blog={blog} currentUser={currentUser} onLike={vi.fn()} />)
 
-  await user.click(screen.getByRole('button', { name: 'view' }))
+  expect(screen.getByRole('button', { name: 'like' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'remove' })).not.toBeInTheDocument()
+  expect(screen.getAllByRole('button')).toHaveLength(1)
+})
 
-  const likeButton = screen.getByRole('button', { name: 'like' })
-  await user.click(likeButton)
-  await user.click(likeButton)
+test('shows like and remove buttons to the blog creator', () => {
+  const blog = {
+    title: 'This Blog is just for testing',
+    author: 'Pigot Morel',
+    url: 'https://example.com/pigot/testing',
+    likes: 67,
+    user: {
+      id: '6769',
+      name: 'Diego Morel'
+    }
+  }
+  const currentUser = {
+    id: '6769',
+    name: 'Diego Morel'
+  }
 
-  expect(onLike.mock.calls).toHaveLength(2)
+  render(
+    <Blog
+      blog={blog}
+      currentUser={currentUser}
+      onLike={vi.fn()}
+      onRemove={vi.fn()}
+    />
+  )
+
+  expect(screen.getByRole('button', { name: 'like' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'remove' })).toBeInTheDocument()
+  expect(screen.getAllByRole('button')).toHaveLength(2)
 })
