@@ -1,10 +1,16 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith } = require('./helper')
+const { loginWith, createBlog } = require('./helper')
 
 const user = {
   name: 'Claudio Morel',
   username: 'cachis',
   password: 'password'
+}
+
+const blog = {
+  title: 'This is my first blog',
+  author: 'Pigot Morel',
+  url: 'www.example.com/pigot/first'
 }
 
 describe('Blog app', () => {
@@ -49,21 +55,31 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      const blog = {
-        title: 'A blog created by Playwright',
-        author: 'Microsoft',
-        url: 'https://playwright.dev/'
-      }
-
-      await page.getByRole('button', { name: 'create new blog' }).click()
-      await page.getByLabel('title').fill(blog.title)
-      await page.getByLabel('author').fill(blog.author)
-      await page.getByLabel('url').fill(blog.url)
-      await page.getByRole('button', { name: 'create' }).click()
+      await createBlog(page, blog)
 
       await expect(
         page.getByText(`${blog.title} ${blog.author}`, { exact: false })
       ).toBeVisible()
+    })
+
+    describe('and a blog exists', () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(page, blog)
+      })
+
+      test('a blog can be liked', async ({ page }) => {
+        const blogText = page.getByText(
+          `${blog.title} ${blog.author}`, { exact: false }
+        )
+        const blogElement = blogText.locator('..')
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+        await blogElement.getByRole('button', { name: 'like' }).click()
+
+        await expect(
+          blogElement.getByText('likes 1', { exact: false })
+        ).toBeVisible()
+      })
     })
   })
 })
