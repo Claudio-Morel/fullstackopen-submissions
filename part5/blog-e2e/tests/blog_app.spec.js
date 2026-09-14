@@ -80,6 +80,19 @@ describe('Blog app', () => {
           blogElement.getByText('likes 1', { exact: false })
         ).toBeVisible()
       })
+
+      test('the user who created a blog can delete it', async ({ page }) => {
+        const blogText = page.getByText(
+          `${blog.title} ${blog.author}`, { exact: false }
+        )
+        const blogElement = blogText.locator('..')
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+        page.once('dialog', dialog => dialog.accept())
+        await blogElement.getByRole('button', { name: 'remove' }).click()
+
+        await expect(blogText).not.toBeVisible()
+      })
     })
   })
 })
