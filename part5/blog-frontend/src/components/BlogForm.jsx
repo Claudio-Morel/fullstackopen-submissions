@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button, Stack, TextField } from '@mui/material'
 
 const BlogForm = ({ onCreate }) => {
   const [title, setTitle] = useState('')
@@ -18,39 +19,37 @@ const BlogForm = ({ onCreate }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          title
-          <input
-            type="text"
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          author
-          <input
-            type="text"
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          url
-          <input
-            type="text"
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-          />
-        </label>
-      </div>
-      <button type="submit">create</button>
-    </form>
+    <Stack
+      component="form"
+      spacing={2}
+      sx={{ maxWidth: 360, mt: 2 }}
+      onSubmit={handleSubmit}
+    >
+      <TextField
+        label="title"
+        type="text"
+        value={title}
+        onChange={({ target }) => setTitle(target.value)}
+        fullWidth
+      />
+      <TextField
+        label="author"
+        type="text"
+        value={author}
+        onChange={({ target }) => setAuthor(target.value)}
+        fullWidth
+      />
+      <TextField
+        label="url"
+        type="text"
+        value={url}
+        onChange={({ target }) => setUrl(target.value)}
+        fullWidth
+      />
+      <Button type="submit" variant="contained" sx={{ alignSelf: 'flex-start' }}>
+        create
+      </Button>
+    </Stack>
   )
 }
 

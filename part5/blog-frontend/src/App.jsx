@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Container } from '@mui/material'
 import {
   Link, Navigate, Route, Routes, useMatch, useNavigate
 } from 'react-router-dom'
@@ -160,7 +161,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <Container>
       <nav>
         <Link to="/">blogs</Link>{' '}
         {user ? (
@@ -220,7 +221,7 @@ const App = () => {
           )}
         />
       </Routes>
-    </div>
+    </Container>
   )
 }
 
