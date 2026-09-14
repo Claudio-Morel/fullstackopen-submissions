@@ -27,7 +27,7 @@ blogRouter.post('/', middleware.userExtractor, async (request, response) => {
     .json(populatedBlog)
 })
 
-blogRouter.put('/:id', async (request, response) => {
+blogRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const blog = { ...request.body }
 
   if (blog.user && typeof blog.user === 'object') {

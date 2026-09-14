@@ -335,6 +335,7 @@ test('likes of a blog can be updated', async () => {
 
   const response = await api
     .put(`/api/blogs/${blogToUpdate.id}`)
+    .set('Authorization', `Bearer ${token}`)
     .send({ likes: updatedLikes })
     .expect(200)
     .expect('Content-Type', /application\/json/)
@@ -355,12 +356,31 @@ test('likes of a blog can be updated', async () => {
   assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
 })
 
+test('a blog cannot be updated without a token', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+  const updatedLikes = blogToUpdate.likes + 1
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send({ likes: updatedLikes })
+    .expect(401)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const unchangedBlog = blogsAtEnd.find(blog => blog.id === blogToUpdate.id)
+
+  assert(unchangedBlog)
+  assert.strictEqual(unchangedBlog.likes, blogToUpdate.likes)
+})
+
 test('updating a nonexisting blog fails with 404', async () => {
   const blogsAtStart = await helper.blogsInDb()
   const nonExistingId = await helper.nonExistingId()
 
   await api
     .put(`/api/blogs/${nonExistingId}`)
+    .set('Authorization', `Bearer ${token}`)
     .send({ likes: 10 })
     .expect(404)
 

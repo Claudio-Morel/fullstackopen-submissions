@@ -1,7 +1,8 @@
-import { useState } from 'react'
-
 const Blog = ({ blog, onLike, onRemove, currentUser }) => {
-  const [detailsVisible, setDetailsVisible] = useState(false)
+  if (!blog) {
+    return null
+  }
+
   const blogUserId = typeof blog.user === 'string' ? blog.user : blog.user?.id
   const canRemove = blogUserId === currentUser?.id
 
@@ -11,10 +12,6 @@ const Blog = ({ blog, onLike, onRemove, currentUser }) => {
     border: 'solid',
     borderWidth: 1,
     marginBottom: 5,
-  }
-
-  const toggleDetailsVisibility = () => {
-    setDetailsVisible(currentlyVisible => !currentlyVisible)
   }
 
   const handleLike = () => {
@@ -31,24 +28,20 @@ const Blog = ({ blog, onLike, onRemove, currentUser }) => {
 
   return (
     <div className="blog" style={blogStyle}>
+      <h2>{blog.title} {blog.author}</h2>
+      <div>{blog.url}</div>
       <div>
-        {blog.title} {blog.author}{' '}
-        <button type="button" onClick={toggleDetailsVisibility}>
-          {detailsVisible ? 'hide' : 'view'}
-        </button>
-      </div>
-      {detailsVisible && (
-        <div>
-          <div>{blog.url}</div>
-          <div>
-            likes {blog.likes}{' '}
+        likes {blog.likes}
+        {currentUser && (
+          <>
+            {' '}
             <button type="button" onClick={handleLike}>like</button>
-          </div>
-          <div>{blog.user?.name}</div>
-          {canRemove && (
-            <button type="button" onClick={handleRemove}>remove</button>
-          )}
-        </div>
+          </>
+        )}
+      </div>
+      <div>{blog.user?.name}</div>
+      {canRemove && (
+        <button type="button" onClick={handleRemove}>remove</button>
       )}
     </div>
   )

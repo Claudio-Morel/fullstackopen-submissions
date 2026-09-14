@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import {
+  Link, Navigate, Route, Routes, useMatch, useNavigate
+} from 'react-router-dom'
 import LoginForm from './components/LoginForm'
+import Blog from './components/Blog'
 import BlogList from './components/BlogList'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
@@ -13,6 +16,10 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({ message: '', className: '' })
   const navigate = useNavigate()
+  const match = useMatch('/blogs/:id')
+  const blog = match
+    ? blogs.find(currentBlog => currentBlog.id === match.params.id)
+    : null
 
   const timeoutNotificationHandler = originalNotificationMessage => {
     return () => {
@@ -152,13 +159,19 @@ const App = () => {
           element={
             <>
               <h2>blogs</h2>
-              <BlogList
-                blogs={blogs}
-                onLike={handleLike}
-                onRemove={handleRemoveBlog}
-                currentUser={user}
-              />
+              <BlogList blogs={blogs} />
             </>
+          }
+        />
+        <Route
+          path="/blogs/:id"
+          element={
+            <Blog
+              blog={blog}
+              onLike={handleLike}
+              onRemove={handleRemoveBlog}
+              currentUser={user}
+            />
           }
         />
         <Route
