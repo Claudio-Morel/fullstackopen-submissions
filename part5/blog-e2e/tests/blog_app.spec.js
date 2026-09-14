@@ -7,6 +7,12 @@ const user = {
   password: 'password'
 }
 
+const anotherUser = {
+  name: 'Diego Morel',
+  username: 'pigot',
+  password: 'password'
+}
+
 const blog = {
   title: 'This is my first blog',
   author: 'Pigot Morel',
@@ -92,6 +98,25 @@ describe('Blog app', () => {
         await blogElement.getByRole('button', { name: 'remove' }).click()
 
         await expect(blogText).not.toBeVisible()
+      })
+
+      test('only the user who created a blog sees the remove button', async ({ page, request }) => {
+        await request.post('/api/users', {
+          data: anotherUser
+        })
+        await page.getByRole('button', { name: 'logout' }).click()
+        await loginWith(page, anotherUser.username, anotherUser.password)
+
+        const blogText = page.getByText(
+          `${blog.title} ${blog.author}`, { exact: false }
+        )
+        const blogElement = blogText.locator('..')
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+
+        await expect(
+          blogElement.getByRole('button', { name: 'remove' })
+        ).not.toBeVisible()
       })
     })
   })
