@@ -22,7 +22,7 @@ const BlogForm = ({ onCreate }) => {
     <Stack
       component="form"
       spacing={2}
-      sx={{ maxWidth: 360, mt: 2 }}
+      sx={{ maxWidth: 380, mt: 2 }}
       onSubmit={handleSubmit}
     >
       <TextField

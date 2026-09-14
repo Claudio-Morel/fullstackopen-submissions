@@ -15,11 +15,10 @@ test('shows blog information but no buttons to an unauthenticated user', () => {
 
   render(<Blog blog={blog} />)
 
-  expect(
-    screen.getByRole('heading', { name: `${blog.title} ${blog.author}` })
-  ).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: blog.title })).toBeInTheDocument()
+  expect(screen.getByText(`by ${blog.author}`)).toBeInTheDocument()
   expect(screen.getByText(blog.url)).toBeInTheDocument()
-  expect(screen.getByText(`likes ${blog.likes}`, { exact: false })).toBeInTheDocument()
+  expect(screen.getByText(`${blog.likes} likes`, { exact: false })).toBeInTheDocument()
   expect(screen.getByText(blog.user.name)).toBeInTheDocument()
   expect(screen.queryByRole('button')).not.toBeInTheDocument()
 })

@@ -33,10 +33,8 @@ describe('Blog app', () => {
     test('fails with wrong credentials', async ({ page }) => {
       await loginWith(page, user.username, 'wrong password')
 
-      const errorDiv = page.locator('.error')
-      await expect(errorDiv).toContainText('invalid username or password')
-      await expect(errorDiv).toHaveCSS('border-style', 'solid')
-      await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
+      const errorAlert = page.getByRole('alert')
+      await expect(errorAlert).toContainText('invalid username or password')
       await expect(page).toHaveURL('/login')
       await expect(page.getByRole('button', { name: 'logout' })).not.toBeVisible()
     })
@@ -66,7 +64,7 @@ describe('Blog app', () => {
         await blogElement.getByRole('button', { name: 'like' }).click()
 
         await expect(
-          blogElement.getByText('likes 1', { exact: false })
+          blogElement.getByText('1 likes', { exact: false })
         ).toBeVisible()
       })
 

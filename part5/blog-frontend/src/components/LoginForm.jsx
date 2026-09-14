@@ -19,13 +19,14 @@ const LoginForm = ({ onLogin }) => {
   return (
     <Stack
       component="form"
-      spacing={2}
-      sx={{ maxWidth: 360, mt: 2 }}
+      spacing={1}
+      sx={{ maxWidth: 210, mt: 3 }}
       onSubmit={handleSubmit}
     >
       <TextField
         label="username"
         type="text"
+        variant="standard"
         value={username}
         onChange={({ target }) => setUsername(target.value)}
         fullWidth
@@ -33,6 +34,7 @@ const LoginForm = ({ onLogin }) => {
       <TextField
         label="password"
         type="password"
+        variant="standard"
         value={password}
         onChange={({ target }) => setPassword(target.value)}
         fullWidth

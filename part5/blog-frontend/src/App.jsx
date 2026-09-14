@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Container } from '@mui/material'
+import {
+  AppBar, Box, Button, Container, Toolbar, Typography
+} from '@mui/material'
 import {
   Link, Navigate, Route, Routes, useMatch, useNavigate
 } from 'react-router-dom'
@@ -12,6 +14,11 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 
 const storageKey = 'loggedBlogappUser'
+const navigationButtonStyle = {
+  '&:hover': {
+    bgcolor: 'rgba(255,255,255,0.3)'
+  }
+}
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -162,65 +169,94 @@ const App = () => {
 
   return (
     <Container>
-      <nav>
-        <Link to="/">blogs</Link>{' '}
-        {user ? (
-          <>
-            <Link to="/create">create new blog</Link>{' '}
-            <span>{user.name} logged in </span>
-            <button type="button" onClick={handleLogout}>logout</button>
-          </>
-        ) : (
-          <Link to="/login">login</Link>
-        )}
-      </nav>
-
-      <Notification notification={notification} />
-
-      <Routes>
-        <Route
-          path="/"
-          element={
+      <AppBar position="static" component="nav">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Blog App
+          </Typography>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/"
+            sx={navigationButtonStyle}
+          >
+            blogs
+          </Button>
+          {user ? (
             <>
-              <h2>blogs</h2>
-              <BlogList blogs={blogs} />
-            </>
-          }
-        />
-        <Route
-          path="/create"
-          element={user ? (
-            <>
-              <h2>create new blog</h2>
-              <BlogForm onCreate={handleCreateBlog} />
+              <Button
+                color="inherit"
+                component={Link}
+                to="/create"
+                sx={navigationButtonStyle}
+              >
+                new blog
+              </Button>
+              <Button color="inherit" onClick={handleLogout} sx={navigationButtonStyle}>
+                logout
+              </Button>
             </>
           ) : (
-            <Navigate to="/login" replace />
+            <Button
+              color="inherit"
+              component={Link}
+              to="/login"
+              sx={navigationButtonStyle}
+            >
+              login
+            </Button>
           )}
-        />
-        <Route
-          path="/blogs/:id"
-          element={
-            <Blog
-              blog={blog}
-              onLike={handleLike}
-              onRemove={handleRemoveBlog}
-              currentUser={user}
-            />
-          }
-        />
-        <Route
-          path="/login"
-          element={user ? (
-            <Navigate to="/" replace />
-          ) : (
-            <>
-              <h2>log in to application</h2>
-              <LoginForm onLogin={handleLogin} />
-            </>
-          )}
-        />
-      </Routes>
+        </Toolbar>
+      </AppBar>
+
+      <Box sx={{ mt: 3 }}>
+        <Notification notification={notification} />
+
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <h2>blogs</h2>
+                <BlogList blogs={blogs} />
+              </>
+            }
+          />
+          <Route
+            path="/create"
+            element={user ? (
+              <>
+                <h2>create new</h2>
+                <BlogForm onCreate={handleCreateBlog} />
+              </>
+            ) : (
+              <Navigate to="/login" replace />
+            )}
+          />
+          <Route
+            path="/blogs/:id"
+            element={
+              <Blog
+                blog={blog}
+                onLike={handleLike}
+                onRemove={handleRemoveBlog}
+                currentUser={user}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={user ? (
+              <Navigate to="/" replace />
+            ) : (
+              <>
+                <h2>Log in to application</h2>
+                <LoginForm onLogin={handleLogin} />
+              </>
+            )}
+          />
+        </Routes>
+      </Box>
     </Container>
   )
 }

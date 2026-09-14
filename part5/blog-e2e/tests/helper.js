@@ -12,7 +12,7 @@ const getBlogLink = (page, blog) => {
 }
 
 const createBlog = async (page, blog) => {
-  await page.getByRole('link', { name: 'create new blog' }).click()
+  await page.getByRole('link', { name: 'new blog' }).click()
   await page.getByLabel('title').fill(blog.title)
   await page.getByLabel('author').fill(blog.author)
   await page.getByLabel('url').fill(blog.url)
