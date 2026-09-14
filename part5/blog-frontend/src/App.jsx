@@ -4,6 +4,7 @@ import {
 } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 import BlogList from './components/BlogList'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
@@ -92,6 +93,26 @@ const App = () => {
     navigate('/')
   }
 
+  const handleCreateBlog = async blog => {
+    try {
+      const createdBlog = await blogService.create(blog)
+      setBlogs(currentBlogs => currentBlogs.concat(createdBlog))
+      showNotification({
+        message: `a new blog ${createdBlog.title} added`,
+        className: 'success',
+      })
+      navigate('/')
+      return createdBlog
+    } catch (error) {
+      console.error('blog creation failed', error)
+      showNotification({
+        message: error.response?.data?.error || 'blog creation failed',
+        className: 'error',
+      })
+      return null
+    }
+  }
+
   const handleLike = async blog => {
     try {
       const userId = typeof blog.user === 'string' ? blog.user : blog.user?.id
@@ -128,6 +149,7 @@ const App = () => {
         message: `blog ${blog.title} removed`,
         className: 'success',
       })
+      navigate('/')
     } catch (error) {
       console.error('blog removal failed', error)
       showNotification({
@@ -143,6 +165,7 @@ const App = () => {
         <Link to="/">blogs</Link>{' '}
         {user ? (
           <>
+            <Link to="/create">create new blog</Link>{' '}
             <span>{user.name} logged in </span>
             <button type="button" onClick={handleLogout}>logout</button>
           </>
@@ -162,6 +185,17 @@ const App = () => {
               <BlogList blogs={blogs} />
             </>
           }
+        />
+        <Route
+          path="/create"
+          element={user ? (
+            <>
+              <h2>create new blog</h2>
+              <BlogForm onCreate={handleCreateBlog} />
+            </>
+          ) : (
+            <Navigate to="/login" replace />
+          )}
         />
         <Route
           path="/blogs/:id"
